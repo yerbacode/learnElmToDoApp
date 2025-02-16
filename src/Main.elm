@@ -1,43 +1,29 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html, textarea, button, text, div)
-import Html.Attributes exposing (placeholder, value, class)
+import Html exposing (Html, div, textarea, button, text)
+import Html.Attributes exposing (class, placeholder, value)
 import Html.Events exposing (onClick, onInput)
 import Components.List as TodoList
 
 type alias Model =
-    { todoList : TodoList.Model
-    , currentInput : String
+    { currentInput : String
+    , todoList : List Todo
+    }
+
+type alias Todo =
+    { value : String
     }
 
 type Msg
     = UpdateInput String
-    | AddTodoItem
+    | AddTodo
 
 init : Model
 init =
-    { todoList = TodoList.todoListModel
+    { todoList = []
     , currentInput = ""
     }
-
-textInput : String -> Html Msg
-textInput currentInput =
-    textarea
-        [ placeholder "Your TODO note"
-        , value currentInput
-        , onInput UpdateInput
-        ]
-        []
-
-addTodoElement : Html Msg
-addTodoElement =
-    button [ onClick AddTodoItem ]
-        [ text "Add!" ]
-
-todoListSectionContainer : List (Html Msg) -> Html Msg
-todoListSectionContainer children =
-    div [ class "flex justify-center w-full" ] children
 
 update : Msg -> Model -> Model
 update msg model =
@@ -45,21 +31,28 @@ update msg model =
         UpdateInput newInput ->
             { model | currentInput = newInput }
 
-        AddTodoItem ->
+        AddTodo ->
             { model
-            | todoList = TodoList.addTodo (TodoList.AddTodo model.currentInput) model.todoList
+            | todoList = { value = model.currentInput } :: model.todoList
             , currentInput = ""
             }
 
 view : Model -> Html Msg
 view model =
     div [ class "flex flex-col items-center gap-4 p-4" ]
-        [ todoListSectionContainer [ Html.map (\_ -> AddTodoItem) (TodoList.todoList model.todoList) ]
-        , todoListSectionContainer
-            [ div [ class "flex gap-2" ]
-                [ textInput model.currentInput
-                , addTodoElement
+        [ TodoList.view model.todoList
+        , div [ class "flex gap-2" ]
+            [ textarea
+                [ placeholder "Your TODO note"
+                , value model.currentInput
+                , onInput UpdateInput
+                , class "rounded p-2 bg-gray-800 text-white border border-gray-700"
+                ] []
+            , button
+                [ onClick AddTodo
+                , class "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 ]
+                [ text "Add!" ]
             ]
         ]
 
