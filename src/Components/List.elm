@@ -1,4 +1,4 @@
-module Components.List exposing (view)
+module Components.List exposing (view, Todo)
 
 import Html exposing (Html, ul, li, text)
 import Html.Attributes exposing (class)

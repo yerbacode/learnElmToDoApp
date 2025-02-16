@@ -8,12 +8,10 @@ import Components.List as TodoList
 
 type alias Model =
     { currentInput : String
-    , todoList : List Todo
+    , todoList : List TodoList.Todo
     }
 
-type alias Todo =
-    { value : String
-    }
+
 
 type Msg
     = UpdateInput String
