@@ -11,11 +11,10 @@ type alias Model =
     , todoList : List TodoList.Todo
     }
 
-
-
 type Msg
     = UpdateInput String
     | AddTodo
+    | DeleteTodo Int
 
 init : Model
 init =
@@ -31,14 +30,18 @@ update msg model =
 
         AddTodo ->
             { model
-            | todoList = { value = model.currentInput } :: model.todoList
+            | todoList = { value = model.currentInput, id = (List.length model.todoList) + 1  } :: model.todoList
             , currentInput = ""
+            }
+        DeleteTodo numberOfItem ->
+            {  model
+            | todoList = List.filter (\todo -> todo.id /= numberOfItem) model.todoList
             }
 
 view : Model -> Html Msg
 view model =
     div [ class "flex flex-col items-center gap-4 p-4" ]
-        [ TodoList.view model.todoList
+        [ TodoList.view model.todoList DeleteTodo
         , div [ class "flex gap-2" ]
             [ textarea
                 [ placeholder "Your TODO note"
