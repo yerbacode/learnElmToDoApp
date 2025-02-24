@@ -1,8 +1,13 @@
-module Components.List exposing (Todo, view)
+module Components.List exposing (State(..), Todo, view)
 
 import Html exposing (Html, li, text, ul)
 import Html.Attributes exposing (class, value)
 import Html.Events exposing (onClick, onInput)
+
+
+type State
+    = Done
+    | Pending
 
 
 type alias Todo =
@@ -10,6 +15,7 @@ type alias Todo =
     , id : Int
     , isEditing : Bool
     , editValue : String
+    , state : State
     }
 
 
@@ -24,7 +30,7 @@ viewTodoItem onDelete onEdit onUpdateEdit todo =
     li
         [ class "block p-4 rounded-lg bg-gray-800 text-white border border-gray-700 hover:bg-gray-700 transition-colors duration-200" ]
         [ if todo.isEditing then
-            Html.input [ value todo.editValue, onInput (\newValue -> onUpdateEdit todo.id newValue) ] []
+            Html.input [ value todo.editValue, onInput (onUpdateEdit todo.id) ] []
 
           else
             text todo.value
