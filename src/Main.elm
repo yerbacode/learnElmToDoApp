@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Components.List as TodoList
-import Html exposing (Html, button, div, input, option, select, span, text, textarea)
+import Html exposing (Html, button, div, option, select, span, text, textarea)
 import Html.Attributes exposing (class, placeholder, value)
 import Html.Events exposing (onClick, onInput)
 
@@ -22,8 +22,9 @@ type Msg
     | EditTodo Int
     | UpdateEditingTodo Int String
     | OnChangeSortBy String
-    | OnChangeTodoFilterState TodoList.State
+    | OnChangeTodoFilterState (Maybe TodoList.State)
     | OnSearchChange String
+    | ToggleTodoState Int
 
 
 init : Model
@@ -91,6 +92,28 @@ update msg model =
                         model.todoList
             }
 
+        ToggleTodoState numberOfItem ->
+            { model
+                | todoList =
+                    List.map
+                        (\todo ->
+                            if todo.id == numberOfItem then
+                                { todo
+                                    | state =
+                                        case todo.state of
+                                            TodoList.Done ->
+                                                TodoList.Pending
+
+                                            TodoList.Pending ->
+                                                TodoList.Done
+                                }
+
+                            else
+                                todo
+                        )
+                        model.todoList
+            }
+
         OnChangeSortBy val ->
             { model | sortBy = valueToSortBy val |> Maybe.withDefault (Id Asc) }
 
@@ -99,7 +122,7 @@ update msg model =
                 (Filter _ search) =
                     model.filter
             in
-            { model | filter = Filter (Just newFilter) search }
+            { model | filter = Filter newFilter search }
 
         OnSearchChange value ->
             let
@@ -147,9 +170,10 @@ view model =
             [ textarea [ placeholder "Search", onInput OnSearchChange ] []
             , span [] [ text "Sort:" ]
             , viewSort
+            , viewFilter
             ]
         , div [ class "flex flex-col items-center gap-4 p-4" ]
-            [ TodoList.view sortedList DeleteTodo EditTodo UpdateEditingTodo
+            [ TodoList.view sortedList DeleteTodo EditTodo UpdateEditingTodo ToggleTodoState
             , div [ class "flex gap-2" ]
                 [ textarea
                     [ placeholder "Your TODO note"
@@ -165,6 +189,16 @@ view model =
                     [ text "Add!" ]
                 ]
             ]
+        ]
+
+
+viewFilter : Html Msg
+viewFilter =
+    div [ class "flex items-center gap-2" ]
+        [ span [] [ text "Filter:" ]
+        , button [ onClick (OnChangeTodoFilterState (Just TodoList.Pending)), class "px-2 py-1 bg-yellow-600 text-white rounded" ] [ text "Pending" ]
+        , button [ onClick (OnChangeTodoFilterState (Just TodoList.Done)), class "px-2 py-1 bg-green-600 text-white rounded" ] [ text "Done" ]
+        , button [ onClick (OnChangeTodoFilterState Nothing), class "px-2 py-1 bg-gray-600 text-white rounded" ] [ text "All" ]
         ]
 
 
