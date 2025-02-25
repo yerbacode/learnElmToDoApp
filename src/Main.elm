@@ -164,6 +164,13 @@ view model =
 
                 Value Asc ->
                     sortFn .value
+
+        messageConfig =
+            { onDelete = DeleteTodo
+            , onEdit = EditTodo
+            , onUpdateEdit = UpdateEditingTodo
+            , onToggleState = ToggleTodoState
+            }
     in
     div [ class "pt-50 pb-50 h-screen justify-between flex flex-col" ]
         [ div [ class "flex justify-between" ]
@@ -173,7 +180,7 @@ view model =
             , viewFilter
             ]
         , div [ class "flex flex-col items-center gap-4 p-4" ]
-            [ TodoList.view sortedList DeleteTodo EditTodo UpdateEditingTodo ToggleTodoState
+            [ TodoList.view sortedList messageConfig
             , div [ class "flex gap-2" ]
                 [ textarea
                     [ placeholder "Your TODO note"
